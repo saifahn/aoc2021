@@ -29,8 +29,7 @@ func main() {
 		log.Fatalf("could not read lines: %s", err)
 	}
 
-	horizontal := 0
-	depth := 0
+	aim, horizontal, depth := 0, 0, 0
 
 	for _, line := range lines {
 		// split by " "
@@ -43,10 +42,11 @@ func main() {
 		switch command {
 		case "forward":
 			horizontal += number
+			depth += number * aim
 		case "down":
-			depth += number
+			aim += number
 		case "up":
-			depth -= number
+			aim -= number
 		}
 	}
 
