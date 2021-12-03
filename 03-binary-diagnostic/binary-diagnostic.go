@@ -22,35 +22,61 @@ func readLines(path string) ([]string, error) {
 	return lines, scanner.Err()
 }
 
+func getOxygen(lines []string, i int) string {
+	var linesWithOne, linesWithZero, subsetLines []string
+	for _, line := range lines {
+		if line[i] == '0' {
+			linesWithZero = append(linesWithZero, line)
+		} else {
+			linesWithOne = append(linesWithOne, line)
+		}
+	}
+	if len(linesWithOne) >= len(linesWithZero) {
+		subsetLines = linesWithOne
+	} else {
+		subsetLines = linesWithZero
+	}
+
+	if len(subsetLines) == 1 {
+		return subsetLines[0]
+	}
+
+	return getOxygen(subsetLines, i+1)
+}
+
+func getCO2(lines []string, i int) string {
+	var linesWithOne, linesWithZero, subsetLines []string
+	for _, line := range lines {
+		if line[i] == '0' {
+			linesWithZero = append(linesWithZero, line)
+		} else {
+			linesWithOne = append(linesWithOne, line)
+		}
+	}
+
+	if len(linesWithZero) <= len(linesWithOne) {
+		subsetLines = linesWithZero
+	} else {
+		subsetLines = linesWithOne
+	}
+
+	if len(subsetLines) == 1 {
+		return subsetLines[0]
+	}
+
+	return getCO2(subsetLines, i+1)
+}
+
 func main() {
 	lines, err := readLines("day3input")
 	if err != nil {
 		log.Fatalf("could not read lines: %s", err)
 	}
 
-	// first, second, third, fourth, fifth := 0, 0, 0, 0, 0
-	numLines := len(lines)
-	lineLength := len(lines[0])
-	digitSums := make([]int, lineLength)
+	oxygen := getOxygen(lines, 0)
+	co2 := getCO2(lines, 0)
+	oxygenDecimal, _ := strconv.ParseInt(oxygen, 2, 64)
+	co2Decimal, _ := strconv.ParseInt(co2, 2, 64)
 
-	for _, line := range lines {
-		for i, char := range line {
-			// convert rune
-			digitSums[i] += int(char - '0')
-		}
-	}
-
-	gammaString, epsilonString := "", ""
-	for _, sum := range digitSums {
-		if sum > numLines/2 {
-			gammaString += "1"
-			epsilonString += "0"
-		} else {
-			gammaString += "0"
-			epsilonString += "1"
-		}
-	}
-	gamma, _ := strconv.ParseInt(gammaString, 2, 64)
-	epsilon, _ := strconv.ParseInt(epsilonString, 2, 64)
-	println(gamma * epsilon)
+	println(co2Decimal * oxygenDecimal)
 }
