@@ -1,26 +1,10 @@
 package main
 
 import (
-	"bufio"
+	"aoc/utils"
 	"log"
-	"os"
 	"strconv"
 )
-
-func readLines(path string) ([]string, error) {
-	file, err := os.Open(path)
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	var lines []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		lines = append(lines, scanner.Text())
-	}
-	return lines, scanner.Err()
-}
 
 func getOxygen(lines []string, i int) string {
 	var linesWithOne, linesWithZero, subsetLines []string
@@ -31,6 +15,7 @@ func getOxygen(lines []string, i int) string {
 			linesWithOne = append(linesWithOne, line)
 		}
 	}
+
 	if len(linesWithOne) >= len(linesWithZero) {
 		subsetLines = linesWithOne
 	} else {
@@ -68,7 +53,7 @@ func getCO2(lines []string, i int) string {
 }
 
 func main() {
-	lines, err := readLines("day3input")
+	lines, err := utils.ReadLines("data/03")
 	if err != nil {
 		log.Fatalf("could not read lines: %s", err)
 	}
