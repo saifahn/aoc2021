@@ -9,19 +9,35 @@ import (
 	"strings"
 )
 
-func markBoards(number string, boards [][][]string) {
-	for _, board := range boards {
-		// go through
-	out:
-		for _, row := range board {
-			for i, char := range row {
-				if char == number {
-					row[i] = "X"
-					break out
-				}
+func markBoard(number string, board [][]string) {
+out:
+	for _, row := range board {
+		for i, char := range row {
+			if char == number {
+				row[i] = "X"
+				break out
 			}
 		}
 	}
+}
+
+func checkBingoSingle(board [][]string) bool {
+	for i, row := range board {
+		// fmt.Printf("length of the row %v", len(row))
+		if i == 0 {
+			for j := range row {
+				bingo := checkColumn(board, j)
+				if bingo {
+					return true
+				}
+			}
+		}
+		bingo := checkRow(row)
+		if bingo {
+			return true
+		}
+	}
+	return false
 }
 
 func checkColumn(board [][]string, index int) bool {
@@ -43,28 +59,13 @@ func checkRow(row []string) bool {
 	return true
 }
 
-func checkForBingo(boards [][][]string) (bool, [][]string) {
-	// go through boards
-	var bingo bool
-	for _, board := range boards {
-		// go over rows
-		for i, row := range board {
-			// fmt.Printf("length of the row %v", len(row))
-			if i == 0 {
-				for j := range row {
-					bingo = checkColumn(board, j)
-					if bingo {
-						return true, board
-					}
-				}
-			}
-			bingo = checkRow(row)
-			if bingo {
-				return true, board
-			}
+func intContains(s []int, e int) bool {
+	for _, a := range s {
+		if a == e {
+			return true
 		}
 	}
-	return false, nil
+	return false
 }
 
 func calculateUnmarked(board [][]string) int {
@@ -98,10 +99,6 @@ func main() {
 	combined := strings.Join(lines, "\n")
 	sections := strings.Split(combined, "\n\n")
 
-	// for _, s := range sections {
-	// 	fmt.Printf("%s\n\n", s)
-	// }
-
 	numbers := sections[0]
 	boardsRaw := sections[1:]
 	splitNumbers := strings.Split(numbers, ",")
@@ -120,28 +117,28 @@ func main() {
 		boards = append(boards, board)
 	}
 
-	// for _, board := range boards {
-	// 	// fmt.Printf("%v", board)
-	// }
+	var completedBoardIndexes []int
+	lastBoardState := make([][]string, len(boards[0]))
+	var lastWonNumber int
 
-	// iterate through numbers
-	// checkForBingo
 	for _, number := range splitNumbers {
-		// markBoards
-		markBoards(number, boards)
-		// checkForBingo
-		bingo, board := checkForBingo(boards)
-		if bingo {
-			// usedNumbers := number[0:i]
-			boardSum := calculateUnmarked(board)
-			currentNumber, err := strconv.Atoi(number)
-			if err != nil {
-				log.Fatalf("failed to convert char, %q", err)
+		for i, board := range boards {
+			if intContains(completedBoardIndexes, i) {
+				continue
 			}
-			fmt.Println(boardSum)
-			fmt.Println(currentNumber)
-			fmt.Println(boardSum * currentNumber)
-			break
+			markBoard(number, board)
+			bingo := checkBingoSingle(board)
+			if bingo {
+				completedBoardIndexes = append(completedBoardIndexes, i)
+				copy(lastBoardState, board)
+				lastWonNumber, _ = strconv.Atoi(number)
+			}
 		}
 	}
+	boardSum := calculateUnmarked(lastBoardState)
+
+	fmt.Printf("boardSum, %v, \n", lastBoardState)
+	fmt.Printf("boardSum, %v, \n", boardSum)
+	fmt.Printf("lastWonNumber, %v, \n", lastWonNumber)
+	fmt.Printf("total, %v, \n", boardSum*lastWonNumber)
 }
