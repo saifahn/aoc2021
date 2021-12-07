@@ -2,7 +2,6 @@ package main
 
 import (
 	"aoc/utils"
-	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -23,6 +22,25 @@ func parseLanternfish(lines []string) []Lanternfish {
 	return lanternfish
 }
 
+func simulate(days int, lf []Lanternfish) (finalTotal int) {
+	for i := 0; i < days; i++ {
+		newFish := 0
+		// decrease timer on each fish
+		for j := range lf {
+			lf[j] -= 1
+			if lf[j] < 0 {
+				lf[j] = 6
+				newFish++
+			}
+		}
+		// add the new fish
+		for k := 0; k < newFish; k++ {
+			lf = append(lf, 8)
+		}
+	}
+	return len(lf)
+}
+
 func main() {
 	lines, err := utils.ReadLines("data/06-test")
 	if err != nil {
@@ -30,5 +48,6 @@ func main() {
 	}
 
 	lanternfish := parseLanternfish(lines)
-	fmt.Println(lanternfish)
+	total := simulate(18, lanternfish)
+	println(total)
 }
