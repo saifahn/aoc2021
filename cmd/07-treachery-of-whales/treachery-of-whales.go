@@ -38,14 +38,25 @@ func getRange(crabs []int) (min, max int) {
 func calculateLeastFuelNeeded(crabs []int, min, max int) int {
 	leastFuel := 0
 	for x := min; x <= max; x++ {
-		total := 0
+		distanceMap := map[int]int{}
 		for _, crab := range crabs {
 			distance := crab - x
 			// get the absolute value
 			if distance < 0 {
 				distance = -distance
 			}
-			total += distance
+			distanceMap[distance]++
+		}
+		total := 0
+		// go through each entry in the distance map, get the total fuel for each distance
+		for d, n := range distanceMap {
+			// sum d
+			fuel := 0
+			for y := 1; y <= d; y++ {
+				fuel += y
+			}
+			fuelForDistance := fuel * n
+			total += fuelForDistance
 		}
 		if total < leastFuel {
 			leastFuel = total
