@@ -7,47 +7,52 @@ import (
 	"strings"
 )
 
-type Lanternfish = int
+type Day = int
 
-func parseLanternfish(lines []string) []Lanternfish {
+type Lanternfish = map[Day]int
+
+func parseLanternfish(lines []string) Lanternfish {
 	if len(lines) != 1 {
 		log.Fatal("expected just one line")
 	}
 	fish := strings.Split(lines[0], ",")
-	var lanternfish []int
+	lanternfish := Lanternfish{}
 	for _, f := range fish {
 		lf, _ := strconv.Atoi(f)
-		lanternfish = append(lanternfish, lf)
+		lanternfish[lf] += 1
 	}
 	return lanternfish
 }
 
-func simulate(days int, lf []Lanternfish) (finalTotal int) {
+func simulate(days int, lf Lanternfish) Lanternfish {
 	for i := 0; i < days; i++ {
-		newFish := 0
-		// decrease timer on each fish
-		for j := range lf {
-			lf[j] -= 1
-			if lf[j] < 0 {
-				lf[j] = 6
-				newFish++
-			}
+		// take the fish at 0 days, set reproduce
+		reproducingFish := lf[0]
+		// go through each key of the lanternfish, reduce them
+		for j := 1; j < 9; j++ {
+			lf[j-1] = lf[j]
 		}
-		// add the new fish
-		for k := 0; k < newFish; k++ {
-			lf = append(lf, 8)
-		}
+		// add the reproducingFish
+		lf[6] += reproducingFish
+		// replace the 8th because we didn't do it above
+		lf[8] = reproducingFish
 	}
-	return len(lf)
+	return lf
 }
 
 func main() {
-	lines, err := utils.ReadLines("data/06-test")
+	lines, err := utils.ReadLines("data/06-real")
 	if err != nil {
 		log.Fatalf("could not read lines: %s", err)
 	}
 
 	lanternfish := parseLanternfish(lines)
-	total := simulate(18, lanternfish)
+	end := simulate(256, lanternfish)
+	total := 0
+	for k := 0; k < 9; k++ {
+		total += end[k]
+	}
+	// fmt.Printf("%v", end)
+	// fmt.Printf("%v", end)
 	println(total)
 }
